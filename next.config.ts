@@ -9,10 +9,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Allow images from external domains if needed in the future
-  images: {
-    remotePatterns: [],
-  },
 };
 
 export default nextConfig;
