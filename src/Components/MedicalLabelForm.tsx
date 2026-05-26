@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import toast from "react-hot-toast";
 
 export default function MedicalLabelForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,14 +24,14 @@ export default function MedicalLabelForm() {
 
       const result = await response.json();
       if (result.success && result.data && result.data.id) {
-        alert("Item added successfully!");
+        toast.success("Item added successfully!");
         e.currentTarget.reset();
       } else {
-        alert("Failed to add item: " + (result.message || "Unknown error"));
+        toast.error("Failed to add item: " + (result.message || "Unknown error"));
       }
     } catch (error) {
       console.error(error);
-      alert("An error occurred while adding the item.");
+      toast.error("An error occurred while adding the item.");
     }
   };
   return (

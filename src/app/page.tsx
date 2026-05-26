@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Footer from "@/Components/Footer";
+import toast from "react-hot-toast";
 
 interface LoginFormInputs {
   employeeId: string;
@@ -36,8 +37,16 @@ export default function Home() {
     // Simulate login loading state and redirect to dashboard (/items)
     setTimeout(() => {
       setIsLoading(false);
+      toast.success("Login Successful!");
       router.push("/items");
     }, 1200);
+  };
+
+  const onError = (errors: any) => {
+    const errorMsg = errors.employeeId?.message || errors.email?.message || errors.password?.message;
+    if (errorMsg) {
+      toast.error(errorMsg);
+    }
   };
 
   // Extract first validation error to display in the main alert box
@@ -106,7 +115,7 @@ export default function Home() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5" noValidate>
             {/* Input 1: Employee ID */}
             <div>
               <label htmlFor="employeeId" className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">

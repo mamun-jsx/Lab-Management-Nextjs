@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { User, ShieldAlert, Phone, Lock, CheckCircle2, BadgeAlert, Mail } from "lucide-react";
+import toast from "react-hot-toast";
 
 // Define the fields for the registration form
 interface CreateUserInputs {
@@ -45,7 +46,9 @@ export default function CreateUserPage() {
     // Simulate saving data to db
     setTimeout(() => {
       setIsLoading(false);
-      setSuccessMessage(`User "${data.employeeName}" (ID: ${data.employeeId}) has been successfully created!`);
+      const msg = `User "${data.employeeName}" (ID: ${data.employeeId}) has been successfully created!`;
+      setSuccessMessage(msg);
+      toast.success(msg);
       
       // Clear form values after successful completion
       reset();
