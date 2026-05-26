@@ -13,6 +13,7 @@ import {
   Loader2,
   FileText
 } from "lucide-react";
+import { addProducts } from "@/action";
 
 export default function MedicalLabelForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,27 +25,9 @@ export default function MedicalLabelForm() {
     const formData = new FormData(e.currentTarget);
     const rawData = Object.fromEntries(formData.entries());
     const data = { ...rawData, quantity: Number(rawData.quantity) };
-    console.log("Form Data:", data);
 
     try {
-      const token = localStorage.getItem("token");
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/add-items`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify(data),
-        },
-      );
-
-      const result = await response.json();
+      const result = await addProducts(data);
       if (result.success && result.data && result.data.id) {
         toast.success("Item added successfully!");
         e.currentTarget.reset();
@@ -58,6 +41,7 @@ export default function MedicalLabelForm() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-[calc(100vh-4rem)] md:min-h-screen py-10 px-4 flex items-center justify-center font-sans animate-in fade-in duration-300">
