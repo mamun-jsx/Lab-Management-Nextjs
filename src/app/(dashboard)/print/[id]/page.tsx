@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { Printer } from "lucide-react";
 
 // Format date to uppercase standard (e.g. 01-MAR-2026)
 const formatDate = (dateString: string) => {
@@ -49,14 +50,15 @@ export default function PrintLabelPage() {
   if (!data) return <div className="p-10 font-bold">Loading...</div>;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-200 py-10 print:bg-white print:py-0">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-10 print:bg-white print:py-0 font-sans">
       {/* Visual Button for printing */}
-      <div className="mb-4 print:hidden">
+      <div className="mb-6 print:hidden">
         <button
           onClick={() => window.print()}
-          className="bg-blue-600 text-white px-6 py-2 rounded shadow-lg font-bold hover:bg-blue-700"
+          className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-gradient-to-r from-brand-emerald to-brand-blue hover:from-brand-emerald/90 hover:to-brand-blue/90 text-white font-bold rounded-xl shadow-lg shadow-brand-emerald/10 hover:shadow-brand-emerald/20 transition-all text-sm focus:outline-none focus:ring-2 focus:ring-brand-emerald/50 cursor-pointer"
         >
-          Click to Print Label (74mm x 105mm)
+          <Printer className="w-4 h-4" />
+          <span>Click to Print Label (74mm x 105mm)</span>
         </button>
       </div>
 
