@@ -17,7 +17,8 @@ import {
   FileText,
   QrCode,
   Inbox,
-  Hash
+  Hash,
+  Search
 } from "lucide-react";
 import { getItems, updateItem, deleteItem } from "@/action";
 
@@ -40,6 +41,7 @@ export default function ItemsPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   // Update Modal State
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -154,6 +156,17 @@ export default function ItemsPage() {
     }
   };
 
+  // Dynamic client-side filtering logic
+  const filteredItems = items.filter((item) => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      (item.contentCode && item.contentCode.toLowerCase().includes(query)) ||
+      (item.batchLot && item.batchLot.toLowerCase().includes(query)) ||
+      (item.materialDescription && item.materialDescription.toLowerCase().includes(query))
+    );
+  });
+
   return (
     <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
       {/* Title Header */}
@@ -167,12 +180,28 @@ export default function ItemsPage() {
         </div>
         <Link 
           href="/add-items" 
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-emerald to-brand-blue hover:from-brand-emerald/90 hover:to-brand-blue/90 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md text-sm transition-all focus:outline-none"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-emerald to-brand-blue hover:from-brand-emerald/90 hover:to-brand-blue/90 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md text-sm transition-all focus:outline-none font-sans"
         >
           <Plus className="w-4 h-4" />
           Add New Item
         </Link>
       </div>
+
+      {/* Dynamic Search Box */}
+      {!loading && (
+        <div className="relative max-w-md mb-6 font-sans">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <Search className="w-4.5 h-4.5" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by GTIN (Content Code) or Batch / Lot..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald transition-all text-gray-800 shadow-sm"
+          />
+        </div>
+      )}
 
       {loading ? (
         /* Premium Loading Skeleton */
@@ -195,14 +224,14 @@ export default function ItemsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {items.length === 0 ? (
+                {filteredItems.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="px-6 py-8 text-center text-gray-400 font-medium">
-                      No materials found in database. Click "Add New Item" to create one.
+                      No materials found matching your search.
                     </td>
                   </tr>
                 ) : (
-                  items.map((item) => (
+                  filteredItems.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                       {/* Material Description */}
                       <td className="px-6 py-4.5">
