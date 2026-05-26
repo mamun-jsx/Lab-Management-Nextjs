@@ -11,7 +11,13 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`)
+      const token = localStorage.getItem("token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`, { headers })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch");
           return res.json();

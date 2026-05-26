@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Footer from "@/Components/Footer";
 import toast from "react-hot-toast";
+import { loginUser } from "@/action";
 
 interface LoginFormInputs {
   employeeId: string;
@@ -21,6 +22,7 @@ export default function Home() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormInputs>({
     defaultValues: {
@@ -30,16 +32,52 @@ export default function Home() {
     },
   });
 
-  const onSubmit = (data: LoginFormInputs) => {
+  const onSubmit = async (data: LoginFormInputs) => {
     setServerError("");
     setIsLoading(true);
 
-    // Simulate login loading state and redirect to dashboard (/items)
-    setTimeout(() => {
+    try {
+      const response = await loginUser(data);
+      if (response.success && response.data) {
+        toast.success("Login Successful!");
+        
+        // Save JWT auth token and user profile details locally
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        
+        router.push("/items");
+      } else {
+        const errorMsg = response.message || "Invalid credentials.";
+        setServerError(errorMsg);
+        toast.error(errorMsg);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to connect to authentication server.");
+    } finally {
       setIsLoading(false);
-      toast.success("Login Successful!");
-      router.push("/items");
-    }, 1200);
+    }
+  };
+
+  const handleQuickLoginAdmin = () => {
+    setValue("employeeId", "1");
+    setValue("email", "admin@gmail.com");
+    setValue("password", "123456789");
+    
+    // Simulate short delay so user can see fields populate before submit triggers
+    setTimeout(() => {
+      handleSubmit(onSubmit)();
+    }, 100);
+  };
+
+  const handleQuickLoginUser = () => {
+    setValue("employeeId", "2");
+    setValue("email", "abraham@gmail.com");
+    setValue("password", "123456789");
+    
+    setTimeout(() => {
+      handleSubmit(onSubmit)();
+    }, 100);
   };
 
   const onError = (errors: any) => {
@@ -127,12 +165,21 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                   </svg>
                 </div>
+                <span className="absolute left-10 inset-y-0 flex items-center text-gray-500 font-semibold text-sm select-none">
+                  EMP-
+                </span>
                 <input
                   id="employeeId"
                   type="text"
-                  placeholder="EMP-1002"
-                  {...register("employeeId", { required: "Employee ID is required." })}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-950/50 border rounded-xl text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald transition-all text-sm ${
+                  placeholder="1002"
+                  {...register("employeeId", { 
+                    required: "Employee ID is required.",
+                    pattern: {
+                      value: /^[0-9]+$/,
+                      message: "Employee ID must contain digits only."
+                    }
+                  })}
+                  className={`w-full pl-20 pr-4 py-3 bg-gray-950/50 border rounded-xl text-gray-200 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald transition-all text-sm ${
                     errors.employeeId ? "border-red-500/50" : "border-gray-800"
                   }`}
                 />
@@ -248,6 +295,31 @@ export default function Home() {
               )}
             </button>
           </form>
+
+          {/* Quick Demo Access */}
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest text-center mb-3">
+              Quick Demo Access
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={handleQuickLoginAdmin}
+                className="py-2.5 px-3 bg-brand-emerald/10 hover:bg-brand-emerald/20 border border-brand-emerald/20 text-brand-emerald font-semibold rounded-xl text-xs transition-colors flex flex-col items-center gap-0.5"
+              >
+                <span>Admin Login</span>
+                <span className="text-[9px] text-gray-400 font-normal">EMP-1 (admin@...)</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleQuickLoginUser}
+                className="py-2.5 px-3 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/20 text-brand-blue font-semibold rounded-xl text-xs transition-colors flex flex-col items-center gap-0.5"
+              >
+                <span>User Login</span>
+                <span className="text-[9px] text-gray-400 font-normal">EMP-2 (abraham@...)</span>
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>

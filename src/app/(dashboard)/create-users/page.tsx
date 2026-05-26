@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { User, ShieldAlert, Phone, Lock, CheckCircle2, BadgeAlert, Mail } from "lucide-react";
 import toast from "react-hot-toast";
+import { createUser } from "@/action";
 
 // Define the fields for the registration form
 interface CreateUserInputs {
@@ -18,6 +19,22 @@ export default function CreateUserPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        setIsAdmin(user.role === "ADMIN");
+      } else {
+        setIsAdmin(false);
+      }
+    } catch (e) {
+      console.error(e);
+      setIsAdmin(false);
+    }
+  }, []);
 
   // Initialize react-hook-form
   const {
@@ -36,24 +53,66 @@ export default function CreateUserPage() {
   });
 
   // Handle form submission
-  const onSubmit = (data: CreateUserInputs) => {
+  const onSubmit = async (data: CreateUserInputs) => {
     setIsLoading(true);
     setSuccessMessage("");
 
-    // Output raw details in the console for transparency
-    console.log("SUCCESS: Created user successfully!", data);
+    const formattedId = data.employeeId.startsWith("EMP-") ? data.employeeId : `EMP-${data.employeeId}`;
+    const payload = {
+      ...data,
+      employeeId: formattedId
+    };
 
-    // Simulate saving data to db
-    setTimeout(() => {
-      setIsLoading(false);
-      const msg = `User "${data.employeeName}" (ID: ${data.employeeId}) has been successfully created!`;
-      setSuccessMessage(msg);
-      toast.success(msg);
+    try {
+      const result = await createUser(payload);
       
-      // Clear form values after successful completion
-      reset();
-    }, 1000);
+      if (result.success) {
+        const msg = `User "${data.employeeName}" (ID: ${formattedId}) has been successfully created!`;
+        setSuccessMessage(msg);
+        toast.success(msg);
+        
+        // Clear form values after successful completion
+        reset();
+      } else {
+        toast.error(result.message || "Failed to create user");
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+      toast.error("An error occurred while creating the user.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isAdmin === null) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse text-sm text-gray-500">Checking permissions...</div>
+      </div>
+    );
+  }
+
+  if (isAdmin === false) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] md:min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-gray-200 shadow-xl p-8 text-center">
+          <div className="inline-flex p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 mb-4 animate-bounce">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Access Denied</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Only laboratory administrators can create new user accounts.
+          </p>
+          <a
+            href="/items"
+            className="inline-flex justify-center items-center px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl text-sm transition-all"
+          >
+            Return to Dashboard
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] md:min-h-screen py-10 px-4 flex items-center justify-center font-sans animate-in fade-in duration-300">
@@ -124,14 +183,21 @@ export default function CreateUserPage() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                   <ShieldAlert className="w-5 h-5" />
                 </div>
+                <span className="absolute left-10 inset-y-0 flex items-center text-gray-400 font-semibold text-sm select-none">
+                  EMP-
+                </span>
                 <input
                   id="employeeId"
                   type="text"
-                  placeholder="EMP-1004"
+                  placeholder="1004"
                   {...register("employeeId", { 
-                    required: "Employee ID is required." 
+                    required: "Employee ID is required.",
+                    pattern: {
+                      value: /^[0-9]+$/,
+                      message: "Employee ID must contain digits only."
+                    }
                   })}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-50/50 border rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald transition-all text-sm ${
+                  className={`w-full pl-20 pr-4 py-3 bg-gray-50/50 border rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-emerald/20 focus:border-brand-emerald transition-all text-sm ${
                     errors.employeeId ? "border-red-500/50 focus:ring-red-500/10 focus:border-red-500" : "border-gray-200"
                   }`}
                 />

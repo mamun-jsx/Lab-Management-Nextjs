@@ -7,7 +7,13 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items`)
+    const token = localStorage.getItem("token");
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items`, { headers })
       .then((res) => res.json())
       .then((result) => {
         if (result.success) {

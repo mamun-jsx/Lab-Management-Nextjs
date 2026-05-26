@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
@@ -17,6 +17,7 @@ import {
   User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { logoutUser } from "@/action";
 
 // Sidebar Context State
 interface SidebarContextType {
@@ -51,6 +52,18 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage", e);
+    }
+  }, []);
 
   const menuItems = [
     {
@@ -75,7 +88,14 @@ export function DashboardSidebar() {
     },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (e) {
+      console.error("Failed to clear cookie", e);
+    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     router.push("/");
   };
 
@@ -136,8 +156,15 @@ export function DashboardSidebar() {
 
         {/* Navigation Section */}
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
+          {menuItems
+            .filter((item) => {
+              if (item.href === "/create-users") {
+                return user?.role === "ADMIN";
+              }
+              return true;
+            })
+            .map((item) => {
+              const Icon = item.icon;
             const isActive = pathname === item.href;
             
             return (
@@ -177,8 +204,10 @@ export function DashboardSidebar() {
             </div>
             {!isCollapsed && (
               <div className="overflow-hidden animate-in fade-in duration-300">
-                <p className="text-xs font-semibold text-gray-200 truncate">Abdullah Al Mamun</p>
-                <p className="text-[10px] text-gray-500 truncate">Lab Administrator</p>
+                <p className="text-xs font-semibold text-gray-200 truncate">{user?.name || "Loading..."}</p>
+                <p className="text-[10px] text-gray-500 truncate">
+                  {user?.role === "ADMIN" ? "Lab Administrator" : (user?.role || "Lab User")}
+                </p>
               </div>
             )}
           </div>

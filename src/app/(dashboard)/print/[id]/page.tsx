@@ -29,7 +29,13 @@ export default function PrintLabelPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`)
+      const token = localStorage.getItem("token");
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`, { headers })
         .then((res) => res.json())
         .then((result) => {
           if (result.success) {
