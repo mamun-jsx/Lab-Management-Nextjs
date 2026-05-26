@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Footer from "@/Components/Footer";
@@ -18,6 +18,26 @@ export default function Home() {
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/dashboard");
+    } else {
+      setIsRedirecting(false);
+    }
+  }, [router]);
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4">
+        <div className="animate-pulse text-sm text-gray-500 font-semibold tracking-widest font-mono">
+          REDIRECTING...
+        </div>
+      </div>
+    );
+  }
 
   const {
     register,
