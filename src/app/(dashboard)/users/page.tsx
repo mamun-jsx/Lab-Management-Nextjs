@@ -180,13 +180,13 @@ export default function UsersPage() {
                   <th className="px-6 py-4">Employee ID</th>
                   <th className="px-6 py-4">Contact info</th>
                   <th className="px-6 py-4">System Role</th>
-                  {isAdmin && <th className="px-6 py-4 text-right">Actions</th>}
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={isAdmin ? 5 : 4} className="px-6 py-8 text-center text-gray-400 font-medium">
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400 font-medium">
                       No user accounts found. Go to "Create User" to add new accounts.
                     </td>
                   </tr>
@@ -243,30 +243,28 @@ export default function UsersPage() {
                       </td>
 
                       {/* Action buttons */}
-                      {isAdmin && (
-                        <td className="px-6 py-4.5 whitespace-nowrap text-right">
-                          <div className="inline-flex items-center gap-2">
-                            {user.employeeId !== "EMP-1" && user.employeeId !== "EMP-2" && (
-                              <button
-                                onClick={() => handleOpenUpdateModal(user)}
-                                className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-emerald/10"
-                              >
-                                <Edit2 className="w-3.5 h-3.5" />
-                                Update
-                              </button>
-                            )}
-                            {user.employeeId !== "EMP-1" && user.employeeId !== "EMP-2" && (
-                              <button
-                                onClick={() => handleDeleteUser(user.id, user.name, user.employeeId)}
-                                className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      )}
+                      <td className="px-6 py-4.5 whitespace-nowrap text-right">
+                        <div className="inline-flex items-center gap-2">
+                          {user.employeeId !== "EMP-1" && user.employeeId !== "EMP-2" && (
+                            <button
+                              onClick={() => handleOpenUpdateModal(user)}
+                              className="inline-flex items-center gap-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 text-gray-700 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-emerald/10"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              Update
+                            </button>
+                          )}
+                          {isAdmin && user.employeeId !== "EMP-1" && user.employeeId !== "EMP-2" && (
+                            <button
+                              onClick={() => handleDeleteUser(user.id, user.name, user.employeeId)}
+                              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
