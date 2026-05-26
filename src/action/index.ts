@@ -248,3 +248,54 @@ export const getItems = async () => {
     };
   }
 };
+
+export const updateItem = async (id: string, data: any) => {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`, {
+      method: "PUT",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await res.json();
+    } else {
+      return {
+        success: false,
+        message: `Server returned non-JSON response. Status: ${res.status}`,
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Failed to update item.",
+    };
+  }
+};
+
+export const deleteItem = async (id: string) => {
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/get-items/${id}`, {
+      method: "DELETE",
+      headers,
+    });
+
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await res.json();
+    } else {
+      return {
+        success: false,
+        message: `Server returned non-JSON response. Status: ${res.status}`,
+      };
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Failed to delete item.",
+    };
+  }
+};
