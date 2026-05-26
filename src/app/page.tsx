@@ -29,16 +29,6 @@ export default function Home() {
     }
   }, [router]);
 
-  if (isRedirecting) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4">
-        <div className="animate-pulse text-sm text-gray-500 font-semibold tracking-widest font-mono">
-          REDIRECTING...
-        </div>
-      </div>
-    );
-  }
-
   const {
     register,
     handleSubmit,
@@ -51,6 +41,16 @@ export default function Home() {
       password: "",
     },
   });
+
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-4">
+        <div className="animate-pulse text-sm text-gray-500 font-semibold tracking-widest font-mono">
+          REDIRECTING...
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = async (data: LoginFormInputs) => {
     setServerError("");
