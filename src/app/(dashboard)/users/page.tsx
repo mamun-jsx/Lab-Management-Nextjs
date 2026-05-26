@@ -34,6 +34,7 @@ export default function UsersPage() {
   const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ role: string } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const isAdmin = currentUser?.role === "ADMIN";
 
@@ -114,7 +115,14 @@ export default function UsersPage() {
         toast.success(`User updated successfully!`);
         setIsUpdateModalOpen(false);
         reset();
-        fetchUsers(); // Refresh the list
+        // Optimistic update — patch the row in-place, no loading flash
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === selectedUser.id
+              ? { ...u, name: payload.employeeName ?? u.name, employeeId: payload.employeeId, email: payload.employeeEmail ?? u.email, mobileNumber: payload.mobileNumber ?? u.mobileNumber }
+              : u
+          )
+        );
       } else {
         toast.error(response.message || "Failed to update user");
       }
@@ -137,17 +145,21 @@ export default function UsersPage() {
       return;
     }
     
+    setDeletingId(id);
     try {
       const response = await deleteUser(id);
       if (response.success) {
         toast.success(`User "${name}" deleted successfully!`);
-        fetchUsers(); // Refresh the list
+        // Optimistic remove — instantly drop the row, no loading flash
+        setUsers((prev) => prev.filter((u) => u.id !== id));
       } else {
         toast.error(response.message || "Failed to delete user");
       }
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while deleting the user");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -257,10 +269,13 @@ export default function UsersPage() {
                           {isAdmin && user.employeeId !== "EMP-1" && user.employeeId !== "EMP-2" && (
                             <button
                               onClick={() => handleDeleteUser(user.id, user.name, user.employeeId)}
-                              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10"
+                              disabled={deletingId === user.id}
+                              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10 disabled:opacity-60"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              Delete
+                              {deletingId === user.id
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <Trash2 className="w-3.5 h-3.5" />}
+                              {deletingId === user.id ? "Deleting..." : "Delete"}
                             </button>
                           )}
                         </div>

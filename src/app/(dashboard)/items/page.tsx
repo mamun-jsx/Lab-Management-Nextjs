@@ -47,6 +47,7 @@ export default function ItemsPage() {
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isSubmittingUpdate, setIsSubmittingUpdate] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Initialize react-hook-form
   const {
@@ -124,7 +125,12 @@ export default function ItemsPage() {
         toast.success("Product details updated successfully!");
         setIsUpdateModalOpen(false);
         reset();
-        fetchItems();
+        // Optimistic update — patch the row in-place, no loading flash
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === selectedItem.id ? { ...item, ...data, quantity: Number(data.quantity) } : item
+          )
+        );
       } else {
         toast.error(response.message || "Failed to update product");
       }
@@ -142,17 +148,21 @@ export default function ItemsPage() {
       return;
     }
 
+    setDeletingId(id);
     try {
       const response = await deleteItem(id);
       if (response.success) {
         toast.success("Product deleted successfully!");
-        fetchItems();
+        // Optimistic remove — instantly drop the row, no loading flash
+        setItems((prev) => prev.filter((item) => item.id !== id));
       } else {
         toast.error(response.message || "Failed to delete product");
       }
     } catch (error) {
       console.error(error);
       toast.error("An error occurred while deleting the product.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -295,10 +305,13 @@ export default function ItemsPage() {
                           {isAdmin && (
                             <button
                               onClick={() => handleDeleteItem(item.id, item.materialDescription)}
-                              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10"
+                              disabled={deletingId === item.id}
+                              className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100/70 border border-red-100 hover:border-red-200 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500/10 disabled:opacity-60"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              Delete
+                              {deletingId === item.id
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <Trash2 className="w-3.5 h-3.5" />}
+                              {deletingId === item.id ? "Deleting..." : "Delete"}
                             </button>
                           )}
                         </div>
