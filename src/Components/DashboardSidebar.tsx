@@ -8,6 +8,7 @@ import {
   Database, 
   PlusCircle, 
   Users, 
+  UserPlus,
   LogOut, 
   ChevronLeft, 
   ChevronRight, 
@@ -66,6 +67,11 @@ export function DashboardSidebar() {
       title: "Users",
       href: "/users",
       icon: Users,
+    },
+    {
+      title: "Create User",
+      href: "/create-users",
+      icon: UserPlus,
     },
   ];
 
