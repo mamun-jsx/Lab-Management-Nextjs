@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Footer from "@/Components/Footer";
 
 export default function DashboardLayout({
   children,
@@ -30,8 +31,11 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-50 overflow-y-auto print:overflow-visible">
-        {children}
+      <main className="flex-1 bg-gray-50 overflow-y-auto print:overflow-visible flex flex-col justify-between">
+        <div className="flex-grow">
+          {children}
+        </div>
+        <Footer className="border-t border-gray-200 bg-white" />
       </main>
     </div>
   );
