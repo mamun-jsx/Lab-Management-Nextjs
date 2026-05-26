@@ -14,7 +14,8 @@ import {
   ChevronRight, 
   Menu, 
   X,
-  User
+  User,
+  LayoutDashboard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/action";
@@ -66,6 +67,11 @@ export function DashboardSidebar() {
   }, []);
 
   const menuItems = [
+    {
+      title: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+    },
     {
       title: "All Items",
       href: "/items",

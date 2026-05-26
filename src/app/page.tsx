@@ -45,7 +45,7 @@ export default function Home() {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         
-        router.push("/items");
+        router.push("/dashboard");
       } else {
         const errorMsg = response.message || "Invalid credentials.";
         setServerError(errorMsg);
