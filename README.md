@@ -1,6 +1,6 @@
 # Lab Management System - Frontend Web App
 
-This is the frontend client repository for the **Lab Management System**, built with Next.js (App Router), React, TypeScript, and Tailwind CSS. It provides an intuitive user interface for managing laboratory inventory, recording syringe orders, listing items, printing labels, and scanning QR codes to view details.
+This is the frontend client repository for the **Lab Management System**, built with Next.js (App Router), React, TypeScript, and Tailwind CSS. It provides an intuitive, user-friendly, and responsive interface for managing laboratory inventory, registering syringe orders, managing user credentials, printing labels, and scanning QR codes to instantly look up item logs.
 
 ### Backend Repository
 The backend API for this project is built using Express, Prisma, and PostgreSQL, and can be found here:
@@ -8,22 +8,48 @@ The backend API for this project is built using Express, Prisma, and PostgreSQL,
 
 ---
 
-## Features
+## Key Features
 
-- **Inventory Dashboard**: Overview of syringe orders and lab items.
-- **Add Items**: Dynamic form to input detailed item logs (Batch lot, material descriptions, production/expiry dates, order numbers).
-- **Interactive Data Table**: View, filter, and review all items in inventory.
-- **QR Code Utility**: Retrieve dynamically generated QR codes from the API and display/download them for physical tracking.
-- **Print Labels**: Clean, dedicated layout for printing QR code label batches.
-- **Mobile-Responsive Scanner Landing**: Scan the QR code on any item to view its details instantly on the `/product/[id]` route.
+- **Role-Based Authentication & Session Management**:
+  - Secure login using credentials (Employee ID and Password).
+  - JWT token stored in HTTP-Only cookies to protect server side actions and dashboard layouts.
+  - Role-based permissions (ADMIN has write/delete access to inventory and users, USER has standard read/write views).
+  - Demo administrator (`EMP-1`) and user (`EMP-2`) profiles with update/delete protection.
+
+- **Inventory Logs & Syringe Management**:
+  - **Dynamic Order Entry Form**: Form to add new syringe shipments with strict client-side validation checks (ensuring no empty submissions and valid date/quantity formatting).
+  - **Responsive Data Tables**: View detailed item lists featuring material description, GTIN (Content Code), batch/lot, unit quantities, and production/expiry dates.
+  - **Live Client-Side Filtering**: Instant fuzzy search across GTINs, batch numbers, and material descriptions.
+
+- **High-Fidelity Label Print System**:
+  - Dedicated printable invoice layouts containing barcode details, production info, and GTIN codes.
+  - Dynamically fetched scanable QR codes pointing to unique item detail endpoints.
+  - Print button that triggers clean, borderless browser printing for warehouse scanning sheets.
+
+- **Item Lookups & Public Scanner Page**:
+  - Mobile-responsive landing page at `/product/[id]` loaded dynamically from scanning QR code labels.
+  - Fully accessible detail sheet showing manufacturing credentials, batch lot details, and order tracking numbers.
+
+- **User Accounts Control Panel**:
+  - Admin view to manage laboratory employee accounts.
+  - Create new laboratory operators with specific Employee IDs, emails, roles, and password fields.
+  - Interactive table to view, edit, or delete active staff accounts.
+
+- **Polished & Premium User Experience**:
+  - Modern typography and color palette with smooth gradients.
+  - Micro-animations, responsive hover states, loading skeletons, and interactive dialogs.
+  - Integrated with `react-hot-toast` for rich and non-intrusive feedback messages.
 
 ---
 
 ## Tech Stack
 
-- **Framework**: Next.js (App Router, v16)
+- **Framework**: Next.js (App Router, v15/16)
 - **UI & Logic**: React (v19) & TypeScript
-- **Styling**: Tailwind CSS (v4) with PostCSS
+- **State & Forms**: `react-hook-form`
+- **Notifications**: `react-hot-toast`
+- **Icons**: Lucide React
+- **Styling**: Tailwind CSS with modern UI layouts
 - **Package Manager**: pnpm
 
 ---
@@ -58,13 +84,12 @@ Add the following configuration variable pointing to your backend server URL:
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4001
 ```
-> **Note:** For local development, point it to `http://localhost:4001` (or your backend port). For production, update it with your deployed API URL (e.g., `https://backend-lab-log.vercel.app`).
 
 ### 5. Run the Development Server
 ```bash
 pnpm dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application in action.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 6. Build for Production
 To compile and build the production bundle:
@@ -79,12 +104,14 @@ pnpm start
 
 All pages are defined within `src/app/`:
 
-- `/` - Main landing / entry point.
-- `(dashboard)/items` - List, view details, and download QR codes for items.
-- `(dashboard)/add-items` - Form to create and add syringe logs.
-- `(dashboard)/print` - Printable view layout for labels.
-- `(dashboard)/users` - User logs/management.
-- `product/[id]` - Publicly scanable landing page displaying information for a single product/syringe log.
+- `/` - Public user login.
+- `(dashboard)/dashboard` - Inventory summary metrics and links.
+- `(dashboard)/items` - List, search, delete, and trigger updates for inventory logs.
+- `(dashboard)/add-items` - Form to create new syringe records.
+- `(dashboard)/print/[id]` - Dedicated print stylesheet layout for labels.
+- `(dashboard)/users` - Admin user dashboard list & editor.
+- `(dashboard)/create-users` - Admin registration panel to add new laboratory staff.
+- `/product/[id]` - Public landing page accessible from barcode scans displaying syringe specifics.
 
 ---
 

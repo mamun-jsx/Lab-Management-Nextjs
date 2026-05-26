@@ -24,7 +24,68 @@ export default function MedicalLabelForm() {
     
     const formData = new FormData(e.currentTarget);
     const rawData = Object.fromEntries(formData.entries());
-    const data = { ...rawData, quantity: Number(rawData.quantity) };
+
+    // Client-side validations
+    const materialDescription = (rawData.materialDescription as string)?.trim();
+    const contentCode = (rawData.contentCode as string)?.trim();
+    const batchLot = (rawData.batchLot as string)?.trim();
+    const prodDate = (rawData.prodDate as string)?.trim();
+    const expiryDate = (rawData.expiryDate as string)?.trim();
+    const custPartNo = (rawData.custPartNo as string)?.trim();
+    const orderNumber = (rawData.orderNumber as string)?.trim();
+    const quantityStr = rawData.quantity as string;
+
+    if (!materialDescription) {
+      toast.error("Please enter a Material Description.");
+      setIsLoading(false);
+      return;
+    }
+    if (!quantityStr || isNaN(Number(quantityStr)) || Number(quantityStr) <= 0) {
+      toast.error("Please enter a valid positive quantity.");
+      setIsLoading(false);
+      return;
+    }
+    if (!contentCode) {
+      toast.error("Please enter Content (GTIN).");
+      setIsLoading(false);
+      return;
+    }
+    if (!batchLot) {
+      toast.error("Please enter Batch / Lot.");
+      setIsLoading(false);
+      return;
+    }
+    if (!prodDate) {
+      toast.error("Please select a Production Date.");
+      setIsLoading(false);
+      return;
+    }
+    if (!expiryDate) {
+      toast.error("Please select an Expiry Date.");
+      setIsLoading(false);
+      return;
+    }
+    if (!custPartNo) {
+      toast.error("Please enter Customer Part Number.");
+      setIsLoading(false);
+      return;
+    }
+    if (!orderNumber) {
+      toast.error("Please enter Order Number.");
+      setIsLoading(false);
+      return;
+    }
+
+    const data = {
+      materialDescription,
+      quantity: Number(quantityStr),
+      contentCode,
+      batchLot,
+      prodDate,
+      expiryDate,
+      custPartNo,
+      orderNumber,
+    };
 
     try {
       const result = await addProducts(data);
