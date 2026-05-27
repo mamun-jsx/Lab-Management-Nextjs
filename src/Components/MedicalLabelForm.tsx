@@ -22,7 +22,8 @@ export default function MedicalLabelForm() {
     e.preventDefault();
     setIsLoading(true);
     
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const rawData = Object.fromEntries(formData.entries());
 
     // Client-side validations
@@ -91,7 +92,7 @@ export default function MedicalLabelForm() {
       const result = await addProducts(data);
       if (result.success && result.data && result.data.id) {
         toast.success("Item added successfully!");
-        e.currentTarget.reset();
+        form.reset();
       } else {
         toast.error("Failed to add item: " + (result.message || "Unknown error"));
       }
